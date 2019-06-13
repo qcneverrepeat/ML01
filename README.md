@@ -1,5 +1,5 @@
 # ML01
 Qiancheng &amp; Panxin is learning Meachine Learning.
 
-This repository has 2 branches initially: qc and px(master).
+This repository has 2 branches initially: qc and px, on top of branch master.
 We recommend each one modify his branch only.
