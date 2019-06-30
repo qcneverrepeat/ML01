@@ -6,7 +6,8 @@
 ID3 FINISHED
 
 TO DO LIST:
-    if (all x_i the same) then return leaf or split
+    if (all x_i the same) then return leaf or split : return leaf
+    if trainset attribute value is not complete, then how to handle the empty branch
     how to visualize
     predict method in tree
     C4.5 & CART
@@ -40,7 +41,9 @@ class Node(object):
 
     def split(self):
 
-        if len(self.Counter(self.y).keys()) == 1 or self.x.shape[1] == 0:# or all x_i in D are the same ? complement
+        if len(self.Counter(self.y).keys()) == 1 or self.x.shape[1] == 0 or self.x.drop_duplicates().shape[0] == 1:
+            # 3 conditions : return leaf
+            # y has only one label ; attributes set is empty ; the value in every attributes of all samples are the same
             self.type = 'leaf'
             self.samples = self.y.size
             self.entroy = self.__entroy(self.y)
@@ -51,7 +54,7 @@ class Node(object):
         for key in self.Counter(self.x[self.x.columns[att_index]]).keys():
 
             subset_x = self.x[self.x[self.x.columns[att_index]] == key]
-            del subset_x[subset_x.columns[att_index]]
+            del subset_x[subset_x.columns[att_index]] # finally, subset_x will be a empty dataframe with only index ,in shape of (n,0)
             subset_y = self.y[subset_x.index]
 
             subnode = Node(subset_x,subset_y,deep = self.deep + 1)
