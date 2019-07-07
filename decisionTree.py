@@ -83,7 +83,8 @@ class Node(object):
                             deep = self.deep + 1,max_features = self.max_features,
                             max_deep = self.max_deep,random_state = self.random_state)
 
-            subnode.judge = '%s = %s'%(self.x.columns[best_index], key)
+            # subnode.judge = '%s = %s'%(self.x.columns[best_index], key)
+            subnode.judge = {self.x.columns[best_index]: key}
             subnode.label = list(Counter(self.y).keys())[0]
             self.childset.append(subnode)
             subnode.split()
@@ -169,24 +170,33 @@ class Tree(object):
         else:
             self.__treeGenerate_CART(x,y)
 
-    def predict(self,x):
-        label = []
-        for indexs in x.index:
-            label.append(self.getLabel(x.loc[indexs]))
-        return pd.Series(label, index = x.index)
-
-    def getLabel(self,row):
-        for key,value in dict(row).items():
-            str = '%s = %s'%(key,value)
-            pass
-
     def traversal(self):
-        '''遍历'''
         self.__root.show()
-        self.cycle(self.__root)
+        self.traversal_recursive(self.__root)
 
-    def cycle(self,node):
-        '''遍历中的递归模块'''
+    def traversal_recursive(self,node):
+        '''recursive model'''
         for sub_node in node.childset:
             sub_node.show()
-            self.cycle(sub_node)
+            self.traversal_recursive(sub_node)
+
+    def predict(self, x):
+        label = []
+        for index,row in x.iterrows(): # iteration by row
+            label.append(self.getLabel(row))
+        return pd.Series(label, index = x.index)
+
+    def getLabel(self, row):
+        '''row : input as a pd.series'''
+        flag = self.__root
+        return self.getLabel_recursive(flag_input = flag, row_input = row)
+
+    def getLabel_recursive(self, flag_input, row_input):
+        '''recursive model'''
+        for subnode in flag_input.childset:
+            if list(subnode.judge.values())[0] == dict(row_input)[list(subnode.judge.keys())[0]]:
+                flag = subnode
+                break
+        if flag.type == 'leaf':
+            return flag.label
+        return self.getLabel_recursive(flag, row_input) # do not forget the return
