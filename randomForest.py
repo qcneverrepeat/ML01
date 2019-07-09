@@ -12,15 +12,18 @@ import decisionTree as DT
 from collections import Counter
 import numpy as np
 import pandas as pd
-# import random
 
 class randomForest(object):
+    '''base = 'ID3', 'C45', 'CART' '''
+    '''max_features = 'log2', 'sqrt', int or float'''
 
     def __init__(self, n_estimators = 10, base = 'ID3',
                 max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0,
-                max_features=None, max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,
+                max_features='log2', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,
                 bootstrap=True, oob_score=False, n_jobs=None, random_state=None, verbose=0,
                 warm_start=False, class_weight=None):
+
+        # parameters check ...
 
         self.n_estimators = n_estimators
         self.base = base
@@ -28,8 +31,9 @@ class randomForest(object):
         self.max_depth = max_depth
         self.bootstrap = bootstrap
         self.random_state = random_state
-
+        # other parameters ...
         self.forest = []
+
 
     def fit(self,x,y):
         # generating trees to self.forest

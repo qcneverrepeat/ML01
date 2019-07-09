@@ -11,6 +11,7 @@ TO DO LIST:
     how to visualize : contents
     predict method in tree
     C4.5 & CART
+    missing value
     pruning
     other control parameters in tree
 '''
@@ -31,7 +32,7 @@ class Node(object):
 
     '''decision tree node'''
 
-    def __init__(self, x, y, deep, max_deep, max_features, random_state):
+    def __init__(self, x, y, deep, max_deep, max_features, random_state, node_type):
 
         self.type = 'node'
         self.entroy = self.__entroy(y)
@@ -43,10 +44,11 @@ class Node(object):
         self.deep = deep
         self.max_features = max_features
         self.random_state = random_state
+        self.node_type = node_type
         self.x = x
         self.y = y
 
-    def split(self):
+    def split(self): # consider node_type ...
 
         # max_features : random feature selection
         feature_number = len(self.x.columns)
@@ -122,12 +124,15 @@ class Node(object):
 class Tree(object):
 
     '''decision tree'''
+    '''max_features = 'log2', 'sqrt', int or float'''
 
     def __init__(self, class_weight=None, tree_type='ID3', max_depth=None, max_features=None,
             max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,
             min_samples_leaf=1, min_samples_split=2,
             min_weight_fraction_leaf=0.0, presort=False,
             random_state=None, splitter='best'):
+
+        # input check... usually conducting at the place following the first time input instead of passing parameters
 
         # control parameters
         self.__class_weight = class_weight
@@ -136,39 +141,29 @@ class Tree(object):
         self.__max_features = max_features
         self.__max_leaf_nodes = max_leaf_nodes
         self.__random_state = random_state
-        #...
+        # other parameters ...
         self.__root = None
 
-        # input check
-        pass
+    def fit(self,x,y, sample_weight = None): # sample_weight ?
 
-    def __treeGenerate_ID3(self,x,y):
+        if x.shape[0] != y.shape[0] or y.shape[0] != y.size:
+            print('data shape error')
+            return
+        elif y.size == 0:
+            print('no input')
+            return
+
+        # checking sample_weight input ...
+
         self.__root = Node(x,y, deep = 0,
                                 max_deep = self.__max_depth,
                                 max_features = self.__max_features,
-                                random_state = self.__random_state)
+                                random_state = self.__random_state,
+                                node_type = tree_type)
         self.__root.type = 'root'
         self.__root.label = list(Counter(y).keys())[0] # choose the max class in y-label or the only class
         self.__root.split()
 
-    def __treeGenerate_C45(self,x,y):
-        pass
-
-    def __treeGenerate_CART(self,x,y):
-        pass
-
-    def fit(self,x,y):
-
-        if x.shape[0] != y.shape[0] or y.shape[0] != y.size:
-            print('data shape error')
-        elif y.size == 0:
-            print('no input')
-        elif self.__type == 'ID3':
-            self.__treeGenerate_ID3(x,y)
-        elif self.__type == 'C4.5':
-            self.__treeGenerate_C45(x,y)
-        else:
-            self.__treeGenerate_CART(x,y)
 
     def traversal(self):
         self.__root.show()
