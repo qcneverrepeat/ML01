@@ -83,7 +83,7 @@ class Node(object):
 
             subnode = Node(subset_x,subset_y,
                             deep = self.deep + 1,max_features = self.max_features,
-                            max_deep = self.max_deep,random_state = self.random_state)
+                            max_deep = self.max_deep,random_state = self.random_state,node_type = self.node_type)
 
             # subnode.judge = '%s = %s'%(self.x.columns[best_index], key)
             subnode.judge = {self.x.columns[best_index]: key}
@@ -144,7 +144,7 @@ class Tree(object):
         # other parameters ...
         self.__root = None
 
-    def fit(self,x,y, sample_weight = None): # sample_weight ?
+    def fit(self,x,y): # sample_weight ?
 
         if x.shape[0] != y.shape[0] or y.shape[0] != y.size:
             print('data shape error')
@@ -159,7 +159,7 @@ class Tree(object):
                                 max_deep = self.__max_depth,
                                 max_features = self.__max_features,
                                 random_state = self.__random_state,
-                                node_type = tree_type)
+                                node_type = self.__type)
         self.__root.type = 'root'
         self.__root.label = list(Counter(y).keys())[0] # choose the max class in y-label or the only class
         self.__root.split()
