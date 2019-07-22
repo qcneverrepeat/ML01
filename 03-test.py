@@ -25,15 +25,7 @@ print(forest.predict(x,show='all'))
 
 
 import adaBoost as aB
-adB = aB.adaBoost(n_estimators = 30)
+adB = aB.adaBoost(n_estimators = 10)
 adB.fit(x,y)
-print(adB.base_weight_set)
-
-# sample_weight_set = pd.DataFrame([1/x.shape[0]] * x.shape[0], index = x.index)
-# index = adB.Roulette(sample_weight_set)
-# resam_x = x.iloc[index,:]
-# resam_y = y.iloc[index]
-# resam_x.index = range(x.shape[0])
-# resam_y.index = range(x.shape[0])
-# print(resam_x)
-# print(resam_y)
+# print(adB.base_weight_set)
+print(adB.predict(x, show='all'))

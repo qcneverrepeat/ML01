@@ -32,9 +32,9 @@ class Node(object):
 
     '''decision tree node'''
 
-    def __init__(self, x, y, deep, max_deep, max_features, random_state, node_type):
+    def __init__(self, x, y, deep, max_deep, max_features, random_state, node_type = 'node'):
 
-        self.type = 'node'
+        # self.type = 'node'
         self.entroy = self.__entroy(y)
         self.samples = y.size
         self.label = None
@@ -66,7 +66,7 @@ class Node(object):
             # conditions to return leaf
             # y has only one label ; attributes set is empty ; the value in every attributes of all samples are the same
             # max_deep ; max_feature
-            self.type = 'leaf'
+            self.node_type = 'leaf'
             self.samples = self.y.size
             self.label = list(Counter(self.y).keys())[0]
             return
@@ -111,7 +111,7 @@ class Node(object):
         return entroy
 
     def show(self):
-        print('     '*self.deep,'|type:',self.type)
+        print('     '*self.deep,'|type:',self.node_type)
         print('     '*self.deep,'|entroy: %0.4f'%self.entroy)
         print('     '*self.deep,'|samples:',self.samples)
         print('     '*self.deep,'|label:',self.label)
@@ -160,7 +160,7 @@ class Tree(object):
                                 max_features = self.__max_features,
                                 random_state = self.__random_state,
                                 node_type = self.__type)
-        self.__root.type = 'root'
+        self.__root.node_type = 'root'
         self.__root.label = list(Counter(y).keys())[0] # choose the max class in y-label or the only class
         self.__root.split()
 
@@ -190,8 +190,8 @@ class Tree(object):
         '''recursive model'''
         for subnode in flag_input.childset:
             if list(subnode.judge.values())[0] == dict(row_input)[list(subnode.judge.keys())[0]]:
-                flag = subnode
+                flag_ = subnode
                 break
-        if flag.type == 'leaf':
-            return flag.label
-        return self.getLabel_recursive(flag, row_input) # do not forget the return
+        if flag_.node_type == 'leaf':
+            return flag_.label
+        return self.getLabel_recursive(flag_, row_input) # do not forget the return

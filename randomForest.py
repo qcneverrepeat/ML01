@@ -57,7 +57,9 @@ class randomForest(object):
             self.forest.append(tree)
 
     def predict(self, x, show = 'ensemble'):
-        '''show = ensemble/all'''
+        '''
+        show = 'ensemble' or 'all'
+        '''
         result_frame = pd.DataFrame()
         for tree in self.forest:
             result = tree.predict(x)
