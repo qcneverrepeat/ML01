@@ -51,16 +51,23 @@ class evaluator(object):
             TPRate.append(TPR)
             FPRate.append(FPR)
 
+        # calculating AUC value
+        FPRate.append(0)
+        TPRate.append(0)
+        de_FPR = np.array(FPRate[1:])-np.array(FPRate[:-1])
+        AUC = np.array(TPRate[1:]).dot(de_FPR.T)
+        FPRate.pop()
+        TPRate.pop()
+
         # draw ROC plot
-        plt.plot(TPRate,FPRate)
+        plt.plot(FPRate,TPRate)
         plt.title('ROC')
-        plt.xlabel('TPRate')
-        plt.ylabel('FPRate')
+        plt.xlabel('FPRate')
+        plt.ylabel('TPRate')
+        plt.text(0.7,0.3,'AUC value: %0.3f'%AUC)
         plt.show()
 
-    @classmethod
-    def AUC(cls, label, predict):
-        pass
+        return AUC
 
 
     @classmethod
