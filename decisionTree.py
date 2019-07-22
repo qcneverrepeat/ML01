@@ -6,10 +6,6 @@
 ID3 FINISHED
 
 TO DO LIST:
-    if (all x_i the same) then return leaf or split : return leaf
-    if trainset attribute value is not complete, then how to handle the empty branch
-    how to visualize : contents
-    predict method in tree
     C4.5 & CART
     missing value
     pruning

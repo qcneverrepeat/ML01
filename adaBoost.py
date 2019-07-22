@@ -28,6 +28,8 @@ class adaBoost(object):
 
     def fit(self, x, y):
 
+        self.pos_label = list(Counter(y).keys())[0]
+        self.neg_label = list(Counter(y).keys())[1]
         sample_weight_set = pd.DataFrame([1/y.size] * y.size, index = x.index)
 
         for i in range(self.n_estimators):
@@ -92,20 +94,17 @@ class adaBoost(object):
         '''
         result_frame = pd.DataFrame()
         result_digit_frame = pd.DataFrame()
-        demo_y = self.base_set[0].predict(x)
-        pos_label = list(Counter(demo_y).keys())[0]
-        neg_label = list(Counter(demo_y).keys())[1]
 
         for classifier in self.base_set:
             result = classifier.predict(x)
             result_frame = pd.concat([result_frame, result], axis = 1)
-            result.loc[result == pos_label] = 1
-            result.loc[result == neg_label] = -1
+            result.loc[result == self.pos_label] = 1
+            result.loc[result == self.neg_label] = -1
             result_digit_frame = pd.concat([result_digit_frame, result], axis = 1)
         ensemble = np.dot(result_digit_frame, np.array(self.base_weight_set))
         ensemble_ = pd.DataFrame(index = x.index,columns = ['ensemble'])
-        ensemble_.loc[ensemble >= 0] = pos_label
-        ensemble_.loc[ensemble < 0] = neg_label
+        ensemble_.loc[ensemble >= 0] = self.pos_label
+        ensemble_.loc[ensemble < 0] = self.neg_label
         if show == 'all':
             result_frame = pd.concat([result_frame, ensemble_], axis = 1)
             return result_frame

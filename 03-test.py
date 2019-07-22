@@ -1,4 +1,4 @@
-
+import numpy as np
 import pandas as pd
 filename = 'D:/jupyter_dir/Python数据分析与挖掘实战/chapter5/demo/data/sales_data.xls' # 当前路径省略即可，间隔用正斜杠；R中的当前路径以.代替
 filename2 = 'D:/jupyter_dir/Python数据分析与挖掘实战/chapter6/demo/data/model.xls'
@@ -23,9 +23,18 @@ forest.fit(x,y)
 print(forest.predict(x,show='all'))
 '''
 
-
+'''
 import adaBoost as aB
-adB = aB.adaBoost(n_estimators = 10)
+import decisionTree as DT
+adB = aB.adaBoost(base = DT.Tree(max_depth = 2),n_estimators = 10)
 adB.fit(x,y)
-# print(adB.base_weight_set)
 print(adB.predict(x, show='all'))
+'''
+
+
+import evaluation
+predict = pd.Series(np.random.uniform(-1,1,size=500))
+label = pd.Series(np.random.uniform(-1,1,size=500))
+label[label<=0] = 'neg'
+label[label!='neg'] = 'pos'
+evaluation.evaluator.ROC(label,predict,pos_label='pos')
