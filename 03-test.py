@@ -31,11 +31,28 @@ adB.fit(x,y)
 print(adB.predict(x, show='all'))
 '''
 
-
+'''
 import evaluation
 predict = pd.Series(np.random.uniform(-1,1,size=500))
 label = pd.Series(np.random.uniform(-1,1,size=500))
 label[label<=0] = 'neg'
 label[label!='neg'] = 'pos'
-a = evaluation.evaluator.ROC(label,predict,pos_label='pos')
+# a = evaluation.evaluator.ROC(label,predict,pos_label='pos')
+# print(a)
+evaluation.evaluator.PR(label,predict,pos_label='pos')
+'''
+
+'''
+import lossFunction as LF
+print(LF.Cost(y,y,type='binary'))
+'''
+
+'''
+import evaluation
+predict = pd.Series(np.random.uniform(-1,1,size=500))
+label = pd.Series(np.random.uniform(-1,1,size=500))
+label[label<=0] = 'neg'
+label[label!='neg'] = 'pos'
+a = evaluation.evaluator.EMP(label,predict,pos_label='pos',expect=True)
 print(a)
+'''

@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
+from scipy import stats
+from scipy.integrate import quad,dblquad,nquad
 
 class evaluator(object):
 
@@ -26,6 +28,7 @@ class evaluator(object):
         frame = pd.concat([label,predict],axis=1).sort_values(by=1)
 
         # identify the positive & negative label
+        # if not given, choose the majority of labels with 5 highest score as pos_label
         if pos_label == None:
             pos_label = list(Counter(frame[0].tail()).keys())[0]
         label_set = list(frame[0].drop_duplicates())
@@ -71,5 +74,79 @@ class evaluator(object):
 
 
     @classmethod
-    def PR_cruve(cls, label, predict):
-        pass
+    def PR(cls, label, predict, pos_label, method = 1):
+        '''
+        input: label, predict score, both in series or DataFrame
+        output: P-R curve
+        method = 1: one-by-one change to positive
+        method = 2: change threshold
+        '''
+        frame = pd.concat([label,predict],axis=1).sort_values(by=1)
+
+        # identify the positive & negative label
+        # if not given, choose the majority of labels with 5 highest score as pos_label
+        if pos_label == None:
+            pos_label = list(Counter(frame[0].tail()).keys())[0]
+        label_set = list(frame[0].drop_duplicates())
+        label_set.remove(pos_label)
+        neg_label = label_set[0]
+
+        P = Counter(frame[0])[pos_label]
+
+        # method 2: change threshold
+        if method == 2:
+            #...
+            pass
+
+        # method 1: one-by-one change to positive
+        # less than ROC by 1 point
+        Precision = []
+        Recall = []
+        frame['pre'] = neg_label
+        for i in range(label.size):
+            frame.iloc[i,2] = pos_label
+            TP = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)
+            recall = TP/P
+            precision = TP/(i+1)
+            Recall.append(recall)
+            Precision.append(precision)
+
+        # draw P-R plot
+        plt.plot(Recall, Precision)
+        plt.title('P-R')
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        # plt.text(0.7,0.3,'AUC value: %0.3f'%AUC)
+        plt.show()
+
+    @classmethod
+    def EMP(cls, label, predict, pos_label, CLV = 200, contact = 1, incentive = 10, alpha = 6, beta = 14, accept = 0.5, expect = True):
+        '''
+        expect = True : EMP
+        expect = False : MP, accept probability = 0.5 in default
+        '''
+        frame = pd.concat([label,predict],axis=1).sort_values(by=1)
+        if pos_label == None:
+            pos_label = list(Counter(frame[0].tail()).keys())[0]
+        label_set = list(frame[0].drop_duplicates())
+        label_set.remove(pos_label)
+        neg_label = label_set[0]
+
+        P = Counter(frame[0])[pos_label]
+        P_pre = Counter(frame[1])[pos_label]
+
+        frame['pre'] = neg_label
+
+        def MP(acc = accept):
+            MP = 0
+            for i in range(label.size):
+                frame.iloc[i,2] = pos_label
+                TP = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)
+                MP = max(TP*(CLV*acc + incentive*(1-acc)) - P_pre*(contact + incentive), MP)
+            return MP
+
+        if not expect:
+            return MP(accept)
+        else:
+            EMP = quad(lambda acce: stats.beta(alpha, beta).pdf(acce)*MP(acce),0,1)
+            return round(EMP[0])
