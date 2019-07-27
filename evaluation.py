@@ -74,7 +74,7 @@ class evaluator(object):
 
 
     @classmethod
-    def PR(cls, label, predict, pos_label, method = 1):
+    def PR(cls, label, predict, pos_label, method = 2):
         '''
         input: label, predict score, both in series or DataFrame
         output: P-R curve
@@ -93,23 +93,49 @@ class evaluator(object):
 
         P = Counter(frame[0])[pos_label]
 
-        # method 2: change threshold
-        if method == 2:
-            #...
-            pass
-
-        # method 1: one-by-one change to positive
         # less than ROC by 1 point
         Precision = []
         Recall = []
         frame['pre'] = neg_label
-        for i in range(label.size):
-            frame.iloc[i,2] = pos_label
-            TP = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)
-            recall = TP/P
-            precision = TP/(i+1)
-            Recall.append(recall)
-            Precision.append(precision)
+        # print(frame)
+
+        # method 1: one-by-one change to positive
+        if method == 1:
+            for i in range(label.size):
+                frame.iloc[i,2] = pos_label
+                TP = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)
+                recall = TP/P
+                precision = TP/(i+1)
+                Recall.append(recall)
+                Precision.append(precision)
+
+        # method 2: group-by-group change = change the threshold
+        else:
+            i = 0
+            while i <= label.size-1:
+                if i == label.size-1:
+                    frame.iloc[i,2] = pos_label
+                    TP = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)
+                    precision = TP/(i+1)
+                    recall = TP/P
+                    Recall.append(recall)
+                    Precision.append(precision)
+                    # print('2')
+                    break
+                while frame.iloc[i,1] == frame.iloc[i+1,1]:
+                    frame.iloc[i,2] = pos_label
+                    i += 1
+                    # print('3')
+                    if i == label.size-1:
+                        break
+                frame.iloc[i,2] = pos_label
+                TP = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)
+                precision = TP/(i+1)
+                recall = TP/P
+                Recall.append(recall)
+                Precision.append(precision)
+                # print('1')
+                i += 1
 
         # draw P-R plot
         plt.plot(Recall, Precision)
