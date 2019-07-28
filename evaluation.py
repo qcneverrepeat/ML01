@@ -22,10 +22,12 @@ class evaluator(object):
         '''
         input: label, predict score, both in series or DataFrame
         output: ROC curve
-        method = 1: one-by-one change to positive
+        method = 1: one-by-one change to positive, from larger score to little
         method = 2: change threshold
+        only when the score order is true (i.e., label sorted as ---...---+++...+++ without chaos), AUC=1
+        <=> there is a threshold under which the accuracy = 100%
         '''
-        frame = pd.concat([label,predict],axis=1).sort_values(by=1)
+        frame = pd.concat([label,predict],axis=1).sort_values(by=1, ascending=False)
 
         # identify the positive & negative label
         # if not given, choose the majority of labels with 5 highest score as pos_label
@@ -81,7 +83,7 @@ class evaluator(object):
         method = 1: one-by-one change to positive
         method = 2: change threshold
         '''
-        frame = pd.concat([label,predict],axis=1).sort_values(by=1)
+        frame = pd.concat([label,predict],axis=1).sort_values(by=1, ascending=False)
 
         # identify the positive & negative label
         # if not given, choose the majority of labels with 5 highest score as pos_label

@@ -34,6 +34,9 @@ print(adB.predict(x, show='all'))
 '''
 import evaluation
 predict = pd.Series(np.random.uniform(-1,1,size=500))
+predict.iloc[1:6] = 0.3
+predict.iloc[9:30] = 0.5
+predict.iloc[50:70] = 0.7 # simulate that some instances share the same score
 label = pd.Series(np.random.uniform(-1,1,size=500))
 label[label<=0] = 'neg'
 label[label!='neg'] = 'pos'
@@ -56,3 +59,17 @@ label[label!='neg'] = 'pos'
 a = evaluation.evaluator.EMP(label,predict,pos_label='pos',expect=True)
 print(a)
 '''
+
+
+from sklearn import datasets
+iris = datasets.load_iris()
+x = iris.data
+y = iris.target
+y[y>1]=1
+
+import linear
+md = linear.logit()
+md.fit(x,y)
+print(md.result)
+plt.plot(md.COST)
+plt.show()
