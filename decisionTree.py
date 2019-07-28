@@ -10,6 +10,7 @@ TO DO LIST:
     missing value
     pruning
     other control parameters in tree
+    __super__() ?
 '''
 
 '''
@@ -30,7 +31,6 @@ class Node(object):
 
     def __init__(self, x, y, deep, max_deep, max_features, random_state, node_type = 'node'):
 
-        # self.type = 'node'
         self.entroy = self.__entroy(y)
         self.samples = y.size
         self.label = None
@@ -81,7 +81,6 @@ class Node(object):
                             deep = self.deep + 1,max_features = self.max_features,
                             max_deep = self.max_deep,random_state = self.random_state,node_type = self.node_type)
 
-            # subnode.judge = '%s = %s'%(self.x.columns[best_index], key)
             subnode.judge = {self.x.columns[best_index]: key}
             subnode.label = list(Counter(self.y).keys())[0]
             self.childset.append(subnode)
@@ -92,10 +91,17 @@ class Node(object):
         entroy = 0
         if y.size != 0:
             for var in x.columns:
-                for key,value in Counter(x[var]).items():
-                    sub_entroy = self.__entroy(y[x[var]==key])
-                    entroy += sub_entroy*(value/y.size)
-                gain.append(entroy)
+                a = []
+                if not isinstance(x[var].iloc[0],str) and x[var].drop_duplicates().size > 5: # continuous attributes
+                    for t in range(x[var].drop_duplicates().size):
+                        thres = (x[var].drop_duplicates().iloc[t] + x[var].drop_duplicates().iloc[t+1])/2
+                        # ...
+                else: # discrete attributes
+                    for key,value in Counter(x[var]).items():
+                        sub_entroy = self.__entroy(y[x[var]==key])
+                        entroy += sub_entroy*(value/y.size)
+                    gain.append(entroy)
+
         return gain
 
     def __entroy(self,y):
@@ -105,6 +111,8 @@ class Node(object):
         for i in proportion:
             entroy += -(i/sum(proportion))*np.log2(i/sum(proportion))
         return entroy
+
+
 
     def show(self):
         print('     '*self.deep,'|type:',self.node_type)
