@@ -70,6 +70,6 @@ y[y>1]=1
 import linear
 md = linear.logit()
 md.fit(x,y)
-print(md.result)
-plt.plot(md.COST)
-plt.show()
+# md.trainProc()
+# print(md.result)
+print(md.predict(x))
