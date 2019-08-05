@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-class logit(object):
+class logitRegression(object):
 
     def __init__(self):
         self.coef = None # np.array([w,b])
@@ -36,7 +36,7 @@ class logit(object):
             self.COST.append(cost)
 
         self.coef = np.append(w,b)
-        self.result = pd.concat([pd.Series(y,name='Origin'), pd.Series(list(map(lambda x: round(x,4), y_)),name='Fit')],axis = 1)
+        self.result = pd.concat([pd.Series(y,name='Origin'), pd.Series(list(map(lambda x: round(x,4), y_)),name='Fitting')],axis = 1)
 
     def trainProc(self):
         '''show the cost-function by plot'''
@@ -57,3 +57,50 @@ class logit(object):
         y[y<thres] = 0
         frame = pd.concat([frame, pd.Series(y, name='Label')], axis = 1)
         return frame
+
+class linearRegression(object):
+
+    def __init__(self):
+        self.coef = None # np.array([w,b])
+        self.COST = [] # record the training process by cost-function
+        self.result = None # fitting result on the training set, containing 'Origin' and 'Fitting' value
+
+    def fit(self,x,y,method=1,alpha=0.1,iter=1000):
+        '''
+        method 1: GD
+        method 2: Normal Equation
+        '''
+        if method == 1:
+            x = np.array(x)
+            y = np.array(y)
+
+            w = np.array([0.0]*x.shape[1]).T
+            b = 0.0
+            dw = np.array([0.0]*x.shape[1]).T
+            db = 0.0
+
+            for i in range(iter):
+                y_ = x.dot(w) + b
+                dw = x.T.dot(y_-y)/x.shape[0]
+                db = np.sum(y_-y)/x.shape[0]
+                w -= alpha * dw
+                b -= alpha * db
+                cost = (0.5/x.shape[0]) * sum((y_-y)**2)
+                self.COST.append(cost)
+            self.coef = np.append(w,b)
+
+        elif method == 2:
+            pass
+
+        self.result = pd.concat([pd.Series(y,name='Origin'), pd.Series(list(map(lambda x: round(x,4), y_)),name='Fitting')],axis = 1)
+
+    def trainProc(self):
+        '''show the cost-function by plot'''
+        plt.plot(self.COST)
+        plt.title('Cost-function')
+        plt.xlabel('Iteration')
+        plt.ylabel('Cost')
+        plt.show()
+
+    def predict(self,x):
+        pass

@@ -60,12 +60,13 @@ a = evaluation.evaluator.EMP(label,predict,pos_label='pos',expect=True)
 print(a)
 '''
 
-
+'''
 from sklearn import datasets
 iris = datasets.load_iris()
 x = iris.data
 y = iris.target
 y[y>1]=1
+
 
 import linear
 md = linear.logit()
@@ -73,3 +74,17 @@ md.fit(x,y)
 # md.trainProc()
 # print(md.result)
 print(md.predict(x))
+'''
+
+from sklearn import datasets
+bos = datasets.load_boston()
+x = bos.data
+y = bos.target
+x = pd.DataFrame(x)
+x = np.array((x-x.mean())/x.std()) # 不归一化容易出现 float64溢出
+y = (y-y.mean())/y.std()
+import GLM
+md = GLM.linearRegression()
+md.fit(x,y,alpha=0.01,iter=500)
+md.trainProc()
+print(md.coef)
