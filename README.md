@@ -5,33 +5,33 @@
 
 规划如下，之后可能会修改框架
 
-#### algorithms
-decisiontree (C4.5,ID3 √,CART)
-GLM (linear √,logit √, elastic-net, ridge √,lasso))
-SVM
-Bayes
-KNN
-cluster
-PCA
+### algorithms
+##### decisiontree (C4.5,ID3 √,CART)
+##### GLM (linear √,logit √, elastic-net, ridge √,lasso))
+##### SVM
+##### Bayes
+##### KNN
+##### cluster
+##### PCA
 ...
 
-##### special issues
-markov-method
-feature-selection
-ensemble (bagging, boosting √, RF √)
-resampling (SMOTE, RoughlyBalance, ...)
-cross-validation
-parameter-selection
-Reinforcement Learning, RL
+### special issues
+##### markov-method
+##### feature-selection
+##### ensemble (bagging, boosting √, RF √)
+##### resampling (SMOTE, RoughlyBalance, ...)
+##### cross-validation
+##### parameter-selection
+##### Reinforcement Learning, RL
 ...
 
-#### evaluations
-PR-curve √
-ROC and AUC √
-EMP value √
-Lift curve
+### evaluations
+##### PR-curve √
+##### ROC and AUC √
+##### EMP value √
+##### Lift curve
 ...
 
-#### statistical test
-Iman-Davenport test
+### statistical test
+##### Iman-Davenport test
 ...
