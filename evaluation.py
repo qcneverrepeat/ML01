@@ -178,3 +178,7 @@ class evaluator(object):
         else:
             EMP = quad(lambda acce: stats.beta(alpha, beta).pdf(acce)*MP(acce),0,1)
             return round(EMP[0])
+
+    @classmethod
+    def Lift(cls, label, predict, pos_label):
+        pass
