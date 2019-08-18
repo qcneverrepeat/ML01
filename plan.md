@@ -18,6 +18,7 @@ ensemble(bagging,boosting,RF)
 cross-validation
 parameter-selection
 Reinforcement Learning, RL
+pre-processing (null/normalization/..)
 
 #### evaluations
 PR-curve
