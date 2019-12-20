@@ -10,8 +10,8 @@
 ##### SVM
 ##### Bayes
 ##### KNN
-##### cluster
-##### PCA
+##### cluster (Kmeans √)
+##### PCA √
 ...
 
 ### special issues

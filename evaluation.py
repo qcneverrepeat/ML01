@@ -14,55 +14,86 @@ from scipy.integrate import quad,dblquad,nquad
 
 class evaluator(object):
 
-    def __init__():
+    def __init__(self):
         pass
 
     @classmethod
-    def ROC(cls, label, predict, pos_label, method = 1):
+    def ROC(label, predict, pos_label, method = 1):
         '''
-        input: label, predict score, both in series or DataFrame
-        output: ROC curve
+        input: label, predict score, both in series or array
+        output: show ROC curve, return AUC value
+
         method = 1: one-by-one change to positive, from larger score to little
-        method = 2: change threshold
+        method = 2: group-by-group change to positive, from larger score to little (some predict scores are the same)
+
         only when the score order is true (i.e., label sorted as ---...---+++...+++ without chaos), AUC=1
         <=> there is a threshold under which the accuracy = 100%
+
         '''
-        frame = pd.concat([label,predict],axis=1).sort_values(by=1, ascending=False)
+
+        # 0-1 normalization; sorting by column predict
+        frame = pd.DataFrame({'label':label, 'predict':predict})
+        frame['predict'] = (frame['predict']-frame['predict'].min())/np.ptp(frame['predict'])
+        frame = frame.sort_values(by='predict', ascending=False)
+        frame.index = range(1,frame.shape[0]+1)
 
         # identify the positive & negative label
         # if not given, choose the majority of labels with 5 highest score as pos_label
         if pos_label == None:
             pos_label = list(Counter(frame[0].tail()).keys())[0]
-        label_set = list(frame[0].drop_duplicates())
+        label_set = list(frame['label'].drop_duplicates())
         label_set.remove(pos_label)
         neg_label = label_set[0]
 
-        P = Counter(frame[0])[pos_label]
-        N = Counter(frame[0])[neg_label]
+        P = Counter(frame['label'])[pos_label]
+        N = Counter(frame['label'])[neg_label]
 
-        # method 2: change threshold
-        if method == 2:
-            #...
-            pass
+        frame['temp'] = neg_label
+        TPRate = []
+        FPRate = []
 
-        # method 1: one-by-one change to positive
-        TPRate = [0]
-        FPRate = [0]
-        frame['pre'] = neg_label
-        for i in range(label.size):
-            frame.iloc[i,2] = pos_label
-            TPR = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)/P
-            FPR = 1 - sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == neg_label)/N
-            TPRate.append(TPR)
-            FPRate.append(FPR)
+        # method 1: one-by-one change to positive,阶梯型
+        if method == 1:
+            TPRate.append(0)
+            FPRate.append(0)
+            for i in range(label.size):
+                frame.iloc[i,2] = pos_label
+                TPR = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)/P
+                FPR = 1 - sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == neg_label)/N
+                TPRate.append(TPR)
+                FPRate.append(FPR)
+
+        # method 2: group-by-group change to positive (some predict scores are the same)，可能出现梯形
+        # 【推荐】绘图结果与sklearn等价,但sklearn速度更快优化更好，能在保持图像不变的前提下省略部分绘图点
+        elif method == 2:
+            TPRate.append(0)
+            FPRate.append(0)
+            for i in range(label.size):
+                frame.iloc[i,2] = pos_label
+                try:
+                    if frame['predict'].iloc[i] == frame['predict'].iloc[i+1]:
+                        continue
+                except:
+                    pass
+                TPR = sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == pos_label)/P
+                FPR = 1 - sum(frame[frame.iloc[:,0] == frame.iloc[:,2]].iloc[:,0] == neg_label)/N
+                TPRate.append(TPR)
+                FPRate.append(FPR)
 
         # calculating AUC value
+        # score完全不同时结果与法2等价
+        # score有相同值时，此方法相当于将梯形部分向上填充成阶梯型，通常比法2略大
+        '''
         FPRate.append(0)
         TPRate.append(0)
-        de_FPR = np.array(FPRate[1:])-np.array(FPRate[:-1])
+        de_FPR = np.array(FPRate[1:])-np.array(FPRate[:-1]) # 错位相减
         AUC = np.array(TPRate[1:]).dot(de_FPR.T)
         FPRate.pop()
         TPRate.pop()
+        '''
+        # another method，与sklearn.metric中等价
+        # score有相同值时，此方法相当于给相同score的样本赋予了顺序，将梯形随机转化成了阶梯型，通常比法1略小
+        AUC = 1 - (sum(frame[frame['label'] == pos_label].index) - 0.5*P*(P+1))/(N*P)
 
         # draw ROC plot
         plt.plot(FPRate,TPRate)

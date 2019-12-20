@@ -41,7 +41,7 @@ class Node(object):
         self.max_features = max_features
         self.random_state = random_state
         self.node_type = node_type
-        self.x = x
+        self.x = x # each node record its train subset
         self.y = y
 
     def split(self): # consider node_type ...
@@ -56,7 +56,7 @@ class Node(object):
         elif isinstance(self.max_features,int) and self.max_features < len(self.x.columns):
             feature_number = self.max_features
         elif isinstance(self.max_features,float):
-            feature_number = int(max_features * len(self.x.columns))
+            feature_number = int(self.max_features * len(self.x.columns))
 
         if len(Counter(self.y).keys()) == 1 or self.x.shape[1] == 0 or self.x.drop_duplicates().shape[0] == 1 or self.deep == self.max_deep or feature_number == 0:
             # conditions to return leaf
@@ -111,6 +111,10 @@ class Node(object):
         for i in proportion:
             entroy += -(i/sum(proportion))*np.log2(i/sum(proportion))
         return entroy
+
+    def __gini(self,y):
+        '''gini value ~ [0,1]'''
+        
 
 
 
