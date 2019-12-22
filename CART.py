@@ -4,7 +4,7 @@
 @Autor: qc
 @Date: 2019-12-09 23:11:15
 @LastEditors  : qc
-@LastEditTime : 2019-12-21 03:22:00
+@LastEditTime : 2019-12-23 00:36:30
 @blog: 
 - cannot handle missing value
 - digital variables only, automatically convert to float32
@@ -101,9 +101,12 @@ class Tree(object):
         left_ins_ind  = node.ins_ind[left]
         right_ins_ind = node.ins_ind[right]
 
-        if min(left_ins_ind.size, right_ins_ind.size) == 0:
+        if min(left_ins_ind.size, right_ins_ind.size)==0 or (node.impurity-max(gini_set))<=0:
             '''
-            one subtree is emtpy: stop splitting and return
+            early stop: stop splitting and return
+            condition:
+                one subtree is emtpy
+                impurity decrease <= threshold (0 here)
             '''
             node.type = 'leaf'
             return
@@ -126,7 +129,7 @@ class Tree(object):
     def bestSplit(self, var, label):
         '''
         var & label: 1d array
-        return best sep_point, corresponding gini
+        return best sep_point, corresponding gini = (d1/d) * gini1 + (d2/d) * gini2
         '''
         val_set = np.unique(var)
         gini_set = []
@@ -197,10 +200,8 @@ class Tree(object):
 
 class Node(object):
     '''
-    @description: node class
-    @param {type} 
-    @return: 
-    @author: qc
+    @description: node class 
+    @return: node instance
     '''
     def __init__(self, type='normal',
                        depth=0,
