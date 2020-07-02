@@ -1,12 +1,3 @@
-<!--
- * @Description: 
- * @Version: 
- * @Autor: qc
- * @Date: 2019-08-15 21:21:09
- * @LastEditors: qc
- * @LastEditTime: 2020-07-02 09:35:04
- -->
-
 ### algorithms
 ##### decisiontree (C4.5,ID3 √,CART √)
 ##### GLM (linear √,logit √, elastic-net, ridge √,lasso))
